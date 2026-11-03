@@ -692,3 +692,533 @@ Click the button and check the alert message.
 Result
 
 Successfully created a static website, uploaded it to GitHub and deployed it using Vercel.
+
+
+
+
+# Practical 9 – FTP File Transfer and GitHub Repository
+
+## Aim
+To transfer files from the host computer to Ubuntu VM using FTP, initialize a Git repository and push files to GitHub.
+
+## Software Requirements
+- Ubuntu VirtualBox
+- FileZilla
+- VS Code / Terminal
+- Git
+- GitHub
+- VSFTPD
+
+## Procedure
+
+1. Install FTP server in Ubuntu.
+   ```bash
+   sudo apt update
+   sudo apt install vsftpd -y
+   ```
+
+2. Start FTP service.
+   ```bash
+   sudo systemctl start vsftpd
+   sudo systemctl enable vsftpd
+   ```
+
+3. Check FTP status.
+   ```bash
+   sudo systemctl status vsftpd
+   ```
+
+4. Find Ubuntu IP address.
+   ```bash
+   hostname -I
+   ```
+
+5. Open FileZilla in Windows and enter:
+   - Host: Ubuntu IP address
+   - Username: Ubuntu username
+   - Password: Ubuntu password
+   - Port: 21
+
+6. Connect and transfer project files from Windows to Ubuntu using drag and drop.
+
+7. Install Git.
+   ```bash
+   sudo apt install git -y
+   ```
+
+8. Configure Git.
+   ```bash
+   git config --global user.name "Your Name"
+   git config --global user.email "your-email@gmail.com"
+   ```
+
+9. Initialize Git repository.
+   ```bash
+   git init
+   git add .
+   git commit -m "First commit"
+   ```
+
+10. Create a repository on GitHub and connect it.
+    ```bash
+    git branch -M main
+    git remote add origin https://github.com/USERNAME/ftp-project.git
+    git push -u origin main
+    ```
+
+## Result
+Successfully transferred files from Windows to Ubuntu VM using FTP and pushed the project to GitHub.
+
+---
+
+# Practical 10 – Remote Access and Git Synchronization
+
+## Aim
+To clone a GitHub repository on Windows and Ubuntu VM, synchronize changes using Git and validate files using FileZilla.
+
+## Software Requirements
+- Windows
+- Ubuntu VirtualBox
+- Git
+- GitHub
+- FileZilla
+
+## Procedure
+
+1. Install Git in Ubuntu.
+   ```bash
+   sudo apt install git -y
+   ```
+
+2. Clone the GitHub repository in Ubuntu.
+   ```bash
+   git clone https://github.com/USERNAME/ftp-project.git
+   ```
+
+3. Open the project folder.
+   ```bash
+   cd ftp-project
+   ```
+
+4. Clone the same repository on Windows using Command Prompt.
+   ```bash
+   git clone https://github.com/USERNAME/ftp-project.git
+   ```
+
+5. Create a file named `hostfile.txt` in Windows.
+
+6. Add and commit the changes.
+   ```bash
+   git add .
+   git commit -m "Added host file"
+   git push origin main
+   ```
+
+7. Pull the changes in Ubuntu.
+   ```bash
+   git pull origin main
+   ```
+
+8. Create a file named `vmfile.txt` in Ubuntu.
+   ```bash
+   nano vmfile.txt
+   ```
+
+9. Push the changes from Ubuntu.
+   ```bash
+   git add .
+   git commit -m "Added VM file"
+   git push origin main
+   ```
+
+10. Pull the changes in Windows.
+    ```bash
+    git pull origin main
+    ```
+
+11. Open FileZilla and connect to Ubuntu using its IP address and FTP credentials.
+
+12. Navigate to the project folder and verify that both `hostfile.txt` and `vmfile.txt` are present.
+
+## Result
+Successfully cloned the repository on Windows and Ubuntu, synchronized changes using Git and verified files using FileZilla.
+
+---
+
+# Practical 11 – Split Deployment Website with Form and MySQL Backend
+
+## Aim
+To implement a website with a frontend, backend and MySQL database and deploy them separately.
+
+## Software Requirements
+- HTML
+- CSS
+- JavaScript
+- Node.js
+- Express.js
+- MySQL
+- GitHub
+- Render
+- Vercel
+
+## Procedure
+
+### 1. Create MySQL Database
+
+Open MySQL Workbench and execute:
+
+```sql
+CREATE DATABASE splitdb;
+USE splitdb;
+
+CREATE TABLE contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    message TEXT
+);
+```
+
+### 2. Create Frontend
+
+Create a folder named `frontend` and create these files:
+
+- index.html
+- style.css
+- script.js
+
+**index.html**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Contact Us</h1>
+
+    <form id="contactForm">
+        <input type="text" id="name" placeholder="Enter Name" required>
+        <input type="email" id="email" placeholder="Enter Email" required>
+        <textarea id="message" placeholder="Enter Message" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="result"></p>
+
+    <script src="script.js"></script>
+</body>
+</html>
+```
+
+**style.css**
+
+```css
+body {
+    text-align: center;
+    font-family: Arial;
+    background: lightblue;
+}
+
+form {
+    margin: 50px auto;
+    width: 300px;
+}
+
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px;
+}
+```
+
+**script.js**
+
+```javascript
+document.getElementById("contactForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const data = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        message: document.getElementById("message").value
+    };
+
+    const response = await fetch(
+        "https://YOUR-BACKEND-URL.onrender.com/contact",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        }
+    );
+
+    const result = await response.json();
+    document.getElementById("result").innerText = result.message;
+});
+```
+
+### 3. Create Backend
+
+Create a folder named `backend`.
+
+Initialize Node.js and install packages.
+
+```bash
+npm init -y
+npm install express mysql2 cors dotenv
+```
+
+Create `server.js`.
+
+```javascript
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
+});
+
+db.connect((err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("MySQL Connected");
+    }
+});
+
+app.post("/contact", (req, res) => {
+    const { name, email, message } = req.body;
+
+    const sql = "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)";
+
+    db.query(sql, [name, email, message], (err) => {
+        if (err) {
+            return res.status(500).json({ message: "Database error" });
+        }
+
+        res.json({ message: "Form submitted successfully!" });
+    });
+});
+
+app.listen(process.env.PORT || 5000, "0.0.0.0", () => {
+    console.log("Server running");
+});
+```
+
+Create a `.env` file with the MySQL connection details.
+
+```text
+DB_HOST=your_mysql_host
+DB_USER=your_mysql_username
+DB_PASSWORD=your_mysql_password
+DB_NAME=splitdb
+PORT=5000
+```
+
+Create `.gitignore`.
+
+```text
+node_modules
+.env
+```
+
+### 4. Test Locally
+
+1. Start the backend using `node server.js`.
+2. Open the frontend using Live Server.
+3. Enter name, email and message.
+4. Click Submit.
+5. Check the database using:
+
+```sql
+SELECT * FROM contacts;
+```
+
+### 5. Deploy Backend Using Render
+
+1. Create a GitHub repository named `split-backend`.
+2. Upload the backend files.
+3. Open Render and sign in using GitHub.
+4. Select New Web Service.
+5. Connect the `split-backend` repository.
+6. Set Build Command to `npm install`.
+7. Set Start Command to `node server.js`.
+8. Add the MySQL environment variables.
+9. Click Deploy.
+10. Copy the deployed backend URL.
+
+### 6. Deploy Frontend Using Vercel
+
+1. Create a GitHub repository named `split-frontend`.
+2. Upload the frontend files.
+3. Update the backend URL in `script.js`.
+4. Open Vercel and sign in using GitHub.
+5. Import the `split-frontend` repository.
+6. Select Other as the framework preset.
+7. Click Deploy.
+8. Open the deployed website and test the contact form.
+9. Check MySQL to verify submitted records.
+
+## Result
+Successfully implemented a split deployment website with a contact form, Node.js backend and MySQL database. Deployed the frontend on Vercel and backend on Render.
+
+---
+
+# Practical 12 – Static Website Deployment Using GitHub and Vercel
+
+## Aim
+To create a static website and deploy it using GitHub and Vercel.
+
+## Software Requirements
+- HTML
+- CSS
+- JavaScript
+- VS Code
+- Git
+- GitHub
+- Vercel
+
+## Procedure
+
+### 1. Create Project
+
+Create a folder named `static-website` and create three files:
+
+- index.html
+- style.css
+- script.js
+
+### 2. Write HTML Code
+
+**index.html**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Website</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Welcome to My Website</h1>
+
+    <p>This is my first static website.</p>
+
+    <button onclick="showMessage()">Click Me</button>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+```
+
+### 3. Write CSS Code
+
+**style.css**
+
+```css
+body {
+    background-color: lightblue;
+    text-align: center;
+    font-family: Arial;
+}
+
+h1 {
+    color: darkblue;
+}
+
+button {
+    padding: 10px;
+    background-color: blue;
+    color: white;
+}
+```
+
+### 4. Write JavaScript Code
+
+**script.js**
+
+```javascript
+function showMessage() {
+    alert("Welcome to my website!");
+}
+```
+
+### 5. Test Website Locally
+
+1. Open the project in VS Code.
+2. Right-click `index.html`.
+3. Select Open with Live Server.
+4. Check the website and click the button.
+
+### 6. Upload Project to GitHub
+
+Open the VS Code terminal inside the project folder.
+
+Initialize Git:
+
+```bash
+git init
+```
+
+Add files:
+
+```bash
+git add .
+```
+
+Commit files:
+
+```bash
+git commit -m "Initial website"
+```
+
+Create a new GitHub repository named `static-website`.
+
+Connect the repository:
+
+```bash
+git branch -M main
+git remote add origin https://github.com/USERNAME/static-website.git
+git push -u origin main
+```
+
+### 7. Deploy Website Using Vercel
+
+1. Open Vercel and log in using GitHub.
+2. Click Add New Project.
+3. Import the `static-website` repository.
+4. Select Other as the framework preset.
+5. Set Root Directory to `./`.
+6. Leave Build Command empty.
+7. Set Output Directory to `./`.
+8. Click Deploy.
+
+### 8. Verify Deployment
+
+1. Open the Vercel deployment URL.
+2. Check whether the heading is displayed.
+3. Verify CSS styling.
+4. Click the button and check the alert message.
+
+## Result
+Successfully created a static website, uploaded it to GitHub and deployed it using Vercel.
